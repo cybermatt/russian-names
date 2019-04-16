@@ -1,0 +1,7 @@
+recursive-exclude tests *
+recursive-exclude __pycache__ *
+exclude .*
+
+include LICENSE.txt
+include README.rst
+include CHANGELOG.rst
