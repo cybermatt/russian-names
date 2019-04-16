@@ -5,7 +5,7 @@ from russian_names.utils import transliterate_word
 
 class RussianNames:
 
-    data = []
+    _data = []
 
     def __init__(self, name=True, name_reduction=False, name_max_len=10,
                  patronymic=True, patronymic_reduction=False, patronymic_max_len=10,
@@ -38,7 +38,7 @@ class RussianNames:
             random.seed(seed)
 
         self._base = {}
-        self.fill_base()
+        self._fill_base()
 
     def __str__(self):
         info = '{} settings:\n'.format(self.__class__.__name__)
@@ -58,23 +58,23 @@ class RussianNames:
 
     @classmethod
     def read_data(cls, data):
-        cls.data = data
+        cls._data = data
 
-    def load_set(self, section, max_len):
+    def _load_set(self, section, max_len):
         return list(filter(lambda x: len(x) <= max_len, section.split(' ')))
 
-    def fill_base(self):
-        names_m_r = self.data[0]
-        names_m = self.data[1]
-        patronymics_m_r = self.data[2]
-        patronymics_m = self.data[3]
-        surnames_m = self.data[4]
+    def _fill_base(self):
+        names_m_r = self._data[0]
+        names_m = self._data[1]
+        patronymics_m_r = self._data[2]
+        patronymics_m = self._data[3]
+        surnames_m = self._data[4]
 
-        names_w_r = self.data[5]
-        names_w = self.data[6]
-        patronymics_w_r = self.data[7]
-        patronymics_w = self.data[8]
-        surnames_w = self.data[9]
+        names_w_r = self._data[5]
+        names_w = self._data[6]
+        patronymics_w_r = self._data[7]
+        patronymics_w = self._data[8]
+        surnames_w = self._data[9]
 
         if self.rare:
             names_m += names_m_r
@@ -84,22 +84,22 @@ class RussianNames:
 
         self._base = {
             'man': {
-                'name': self.load_set(names_m, self.name_max_len),
-                'patronymic': self.load_set(patronymics_m, self.patronymic_max_len),
-                'surname': self.load_set(surnames_m, self.surname_max_len),
+                'name': self._load_set(names_m, self.name_max_len),
+                'patronymic': self._load_set(patronymics_m, self.patronymic_max_len),
+                'surname': self._load_set(surnames_m, self.surname_max_len),
             },
             'woman':  {
-                'name': self.load_set(names_w, self.name_max_len),
-                'patronymic': self.load_set(patronymics_w, self.patronymic_max_len),
-                'surname': self.load_set(surnames_w, self.surname_max_len),
+                'name': self._load_set(names_w, self.name_max_len),
+                'patronymic': self._load_set(patronymics_w, self.patronymic_max_len),
+                'surname': self._load_set(surnames_w, self.surname_max_len),
             },
         }
 
-    def select_gender_distribution(self):
+    def _select_gender_distribution(self):
         dice = random.uniform(0, 1)
         return dice < self.gender
 
-    def get_object(self, gender, elem_type, reduction=False):
+    def _get_object(self, gender, elem_type, reduction=False):
         sub = 'man' if gender else 'woman'
         base = self._base[sub][elem_type]
         name = random.choice(base)
@@ -111,7 +111,7 @@ class RussianNames:
             name = name.upper()
         return name
 
-    def format_person(self, person):
+    def _format_person(self, person):
         if self.output_type == 'dict':
             result = person
         elif self.output_type == 'list':
@@ -125,16 +125,16 @@ class RussianNames:
         return result
 
     def get_person(self):
-        gender = self.select_gender_distribution()
-        name = self.get_object(gender, 'name', self.name_reduction)
-        patronymic = self.get_object(gender, 'patronymic', self.patronymic_reduction)
-        surname = self.get_object(gender, 'surname', self.surname_reduction)
+        gender = self._select_gender_distribution()
+        name = self._get_object(gender, 'name', self.name_reduction)
+        patronymic = self._get_object(gender, 'patronymic', self.patronymic_reduction)
+        surname = self._get_object(gender, 'surname', self.surname_reduction)
         person = {
             'name': name if self.name else None,
             'patronymic': patronymic if self.patronymic else None,
             'surname':  surname if self.surname else None,
         }
-        return self.format_person(person)
+        return self._format_person(person)
 
     def get_batch(self):
         batch = ()
