@@ -6,45 +6,50 @@ from russian_names.utils import transliterate_word
 class RussianNames:
 
     _data = []
+    __slots__ = (
+        'name', 'name_reduction', 'name_max_len', 'patronymic',
+        'patronymic_reduction', 'patronymic_max_len', 'surname',
+        'surname_reduction', 'surname_max_len', 'count', 'gender',
+        'transliterate', 'output_type', 'seed', 'rare', 'uppercase',
+        '_base',
+    )
 
-    def __init__(self, name=True, name_reduction=False, name_max_len=10,
-                 patronymic=True, patronymic_reduction=False, patronymic_max_len=10,
-                 surname=True, surname_reduction=False, surname_max_len=10,
-                 count=10, gender=0.5, transliterate=False, output_type='str',
-                 seed=None, rare=False, uppercase=False):
+    def __init__(self, **kwargs):
 
-        self.name = name
-        self.name_reduction = name_reduction
-        self.name_max_len = name_max_len
+        prop_defaults = {
+            'name': True,
+            'name_reduction': False,
+            'name_max_len': 10,
+            'patronymic': True,
+            'patronymic_reduction': False,
+            'patronymic_max_len': 10,
+            'surname': True,
+            'surname_reduction': False,
+            'surname_max_len': 10,
+            'count': 10,
+            'gender': 0.5,
+            'transliterate': False,
+            'output_type': 'str',
+            'seed': None,
+            'rare': False,
+            'uppercase': False,
+        }
 
-        self.patronymic = patronymic
-        self.patronymic_reduction = patronymic_reduction
-        self.patronymic_max_len = patronymic_max_len
-
-        self.surname = surname
-        self.surname_reduction = surname_reduction
-        self.surname_max_len = surname_max_len
-
-        self.count = count
-        self.transliterate = transliterate
-        self.output_type = output_type
-        self.rare = rare
-        self.uppercase = uppercase
-
-        if 0 <= gender <= 1:
-            self.gender = gender
-
+        seed = kwargs.pop('seed', None)
         if seed is not None:
             random.seed(seed)
 
-        self._base = {}
+        for prop, default in prop_defaults.items():
+            setattr(self, prop, kwargs.get(prop, default))
+
         self._fill_base()
 
     def __str__(self):
         info = '{} settings:\n'.format(self.__class__.__name__)
-        for option, value in self.__dict__.items():
+        for option in self.__slots__:
             if option.startswith('_'):
                 continue
+            value = getattr(self, option)
             info += '\t {}: {}\n '.format(option, value)
         return info
 
@@ -60,10 +65,20 @@ class RussianNames:
     def read_data(cls, data):
         cls._data = data
 
+    def _set_options(self, **kwargs):
+        refill_base = False
+        for prop, value in kwargs.items():
+            if prop.endswith('_len'):
+                refill_base = True
+            setattr(self, prop, value)
+        if refill_base:
+            self._fill_base()
+
     def _load_set(self, section, max_len):
         return list(filter(lambda x: len(x) <= max_len, section.split(' ')))
 
     def _fill_base(self):
+        self._base = {}
         names_m_r = self._data[0]
         names_m = self._data[1]
         patronymics_m_r = self._data[2]
@@ -97,7 +112,10 @@ class RussianNames:
 
     def _select_gender_distribution(self):
         dice = random.uniform(0, 1)
-        return dice < self.gender
+        gender = 0.5
+        if 0 <= self.gender <= 1:
+            gender = self.gender
+        return dice < gender
 
     def _get_object(self, gender, elem_type, reduction=False):
         sub = 'man' if gender else 'woman'
@@ -124,7 +142,8 @@ class RussianNames:
             raise ValueError("Output_type does not have value 'str', 'list, 'tuple' or 'dict'. ")
         return result
 
-    def get_person(self):
+    def get_person(self, **kwargs):
+        self._set_options(**kwargs)
         gender = self._select_gender_distribution()
         name = self._get_object(gender, 'name', self.name_reduction)
         patronymic = self._get_object(gender, 'patronymic', self.patronymic_reduction)
@@ -136,10 +155,10 @@ class RussianNames:
         }
         return self._format_person(person)
 
-    def get_batch(self):
+    def get_batch(self, **kwargs):
         batch = ()
         for _ in range(self.count):
-            fio = self.get_person()
+            fio = self.get_person(**kwargs)
             batch += (fio, )
         return batch
 
