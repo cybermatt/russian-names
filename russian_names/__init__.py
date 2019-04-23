@@ -2,8 +2,8 @@ from .names import RussianNames
 from .utils import load_data
 
 
-__version__ = '0.1.0'
-__author__ = 'cybermatt'
+__version__ = '0.1.2'
+__author__ = 'Matt Stroganov'
 
 
 data = load_data()

@@ -1,4 +1,5 @@
 import zipfile
+from os.path import abspath, join, dirname
 
 from russian_names.consts import TRANSLITERATE_TABLE, SUFFIXES, PATRONYMIC_RULES
 
@@ -63,12 +64,13 @@ def create_patronymics(names):
     return patronymics
 
 
-_BASE_PATH = 'data.zip'
+_BASE_PATH = '_data.zip'
 _BASE_NAME = 'base.txt'
 
 
 def load_data():
-    data_zip = zipfile.ZipFile(_BASE_PATH)
+    path = abspath(join(dirname(__file__), _BASE_PATH))
+    data_zip = zipfile.ZipFile(path)
     data = data_zip.read(_BASE_NAME)
     data_decoded = data.decode('utf8')
     return data_decoded.splitlines()
