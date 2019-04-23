@@ -103,7 +103,7 @@ class RussianNames:
                 'patronymic': self._load_set(patronymics_m, self.patronymic_max_len),
                 'surname': self._load_set(surnames_m, self.surname_max_len),
             },
-            'woman':  {
+            'woman': {
                 'name': self._load_set(names_w, self.name_max_len),
                 'patronymic': self._load_set(patronymics_w, self.patronymic_max_len),
                 'surname': self._load_set(surnames_w, self.surname_max_len),
@@ -151,7 +151,7 @@ class RussianNames:
         person = {
             'name': name if self.name else None,
             'patronymic': patronymic if self.patronymic else None,
-            'surname':  surname if self.surname else None,
+            'surname': surname if self.surname else None,
         }
         return self._format_person(person)
 

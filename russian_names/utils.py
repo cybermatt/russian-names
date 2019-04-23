@@ -40,7 +40,7 @@ def patronymic_from_name(name, gender='male'):
     """
     last_char = name[-1]
     for rule, suffix in PATRONYMIC_RULES.items():
-        cut, m_suffix,  w_suffix = suffix
+        cut, m_suffix, w_suffix = suffix
         for char in rule:
             if last_char == char:
                 if gender == 'male':
